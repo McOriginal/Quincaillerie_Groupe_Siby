@@ -30,6 +30,7 @@ import { useAllProduit } from '../../Api/queriesProduits';
 import showToastAlert from '../components/ToasMessage';
 import { useFormik } from 'formik';
 import * as Yup from 'yup';
+import BackButton from '../components/BackButton';
 
 export default function UpdateDevis() {
   // State de navigation
@@ -323,12 +324,7 @@ export default function UpdateDevis() {
                     </Row>
                   </Form>
 
-                  <Button color='warning' className='mx-auto d-block'>
-                    <i className=' fas fa-angle-double-left me-2'></i>
-                    <Link to='/devisListe' className='text-light'>
-                      Annuler Tous
-                    </Link>
-                  </Button>
+                  <BackButton />
                 </CardBody>
               </Card>
             </Col>

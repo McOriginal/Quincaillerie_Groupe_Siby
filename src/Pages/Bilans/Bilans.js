@@ -11,8 +11,10 @@ import {
 import { connectedUserBoutique } from '../Authentication/userInfos';
 import { useAllPaiements } from '../../Api/queriesPaiement';
 import { useAllDepenses } from '../../Api/queriesDepense';
+import { useAllCommandes } from '../../Api/queriesCommande';
 export default function Bilans() {
   const { data: paiementsData, isLoading, error } = useAllPaiements();
+  const { data: commandeData } = useAllCommandes();
   const { data: depenseData } = useAllDepenses();
   const [selectedBoutique, setSelectedBoutique] = useState(null);
   const tableRef = useRef(null);
@@ -32,19 +34,30 @@ export default function Bilans() {
     [startDate, endDate]
   );
 
+  // Calcul de Nombre de Commande pour le 7 dernier jour
+  const recentCommande = useMemo(
+    () =>
+      commandeData?.commandesListe?.filter((item) => {
+        return isBetweenDates(item?.commandeDate);
+      }),
+    [commandeData, isBetweenDates]
+  );
+  // Calculer de la somme total de Commande pour les Date sélectionnées
+  const totalCommandeNumber = recentCommande?.length;
+
   // Fonction de Rechercher
   const filterPaiement = paiementsData?.filter((item) => {
     // Filtrer par date
-    if (!isBetweenDates(item.commande?.commandeDate)) {
-      return false;
-    }
+    // if (!isBetweenDates(item.commande?.commandeDate)) {
+    //   return false;
+    // }
 
     // Filtrer par boutique
-    if (selectedBoutique !== null) {
-      return Number(item.user?.boutique) === selectedBoutique;
-    }
-
-    return true;
+    return (
+      (isBetweenDates(item.commande?.commandeDate) &&
+        selectedBoutique === null) ||
+      Number(item.user?.boutique) === selectedBoutique
+    );
   });
 
   // Fonction de Rechercher
@@ -72,19 +85,19 @@ export default function Bilans() {
   }, 0);
 
   const { totalAchat, benefice } = useMemo(() => {
-    if (!paiementsData?.paiements) {
+    if (!paiementsData) {
       return { totalAchat: 0, benefice: 0 };
     }
 
     // On filtre d'abord les paiements par date sélectionnée
-    const paiementsFiltres = paiementsData?.paiements?.filter((item) => {
+    const paiementsFiltres = paiementsData?.filter((item) => {
       return isBetweenDates(item?.paiementDate);
     });
 
     // let totalCA = 0; // chiffre d’affaires
     let totalAchat = 0; // coût d’achat
 
-    paiementsFiltres.forEach((paiement) => {
+    paiementsFiltres?.forEach((paiement) => {
       paiement.commande?.items.forEach((item) => {
         const produit = item?.produit;
         if (!produit) return;
@@ -141,7 +154,7 @@ export default function Bilans() {
                           <h6 className=''>
                             Commande Entregistrées:{' '}
                             <span className='text-info'>
-                              {formatPrice(filterPaiement?.length)}
+                              {formatPrice(totalCommandeNumber)}
                             </span>
                           </h6>
                           <h6 className=''>
@@ -151,7 +164,7 @@ export default function Bilans() {
                             </span>
                           </h6>
                           <h6 className=''>
-                            Revenu de Chiffre d'Affaire:{' '}
+                            Revenu Obtenu:{' '}
                             <span className='text-success'>
                               {formatPrice(sumTotalPaye)} F{' '}
                             </span>

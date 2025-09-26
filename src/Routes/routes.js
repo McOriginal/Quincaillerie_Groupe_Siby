@@ -35,6 +35,7 @@ import UsersProfilesListe from '../Pages/Authentication/UsersProfilesListe.js';
 import ProfileDetail from '../Pages/Authentication/ProfileDetail.js';
 import Bilans from '../Pages/Bilans/Bilans.js';
 import TopProduits from '../Pages/Produits/TopProduits.js';
+import DevisDetails from '../Pages/Devis/DevisDetails.js';
 
 const sharedRoutes = [
   // Produit de la Boutique
@@ -71,6 +72,9 @@ const authProtectedRoutes = [
   { path: '/updateDevis/:id', component: <UpdateDevis /> },
   // Devis Liste
   { path: '/devisListe', component: <DevisListe /> },
+
+  // Devis Liste
+  { path: '/devis/devis_details/:id', component: <DevisDetails /> },
 
   // Fournisseurs
   { path: '/fournisseurs', component: <FournisseurListe /> },

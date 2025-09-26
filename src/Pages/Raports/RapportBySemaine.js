@@ -32,9 +32,14 @@ const RapportBySemaine = () => {
       }),
     [commandes, isBetweenDates]
   );
-  // Calcul de la somme total de Commande pour le 7 dernier jour
+  // Calculer de la somme total de Commande pour les Date sélectionnées
   const totalCommandeNumber = recentCommande?.length;
 
+  // Calculer le total de Somme à Payé pour le 7 dernier jour
+  const totalCommandeAmount = recentCommande?.reduce(
+    (acc, item) => acc + Number(item.totalAmount || 0),
+    0
+  );
   // Recente Paiements Amount Paye
   const recentPaiement = useMemo(
     () =>
@@ -43,19 +48,13 @@ const RapportBySemaine = () => {
       }),
     [paiementsData, isBetweenDates]
   );
-
-  // Calculer le total de Somme à Payé pour le 7 dernier jour
-  const totalPaiementsAmount = recentPaiement?.reduce(
-    (acc, item) => acc + Number(item.totalAmount || 0),
-    0
-  );
   // Calculer le total de Somme Payé pour le 7 dernier jour
   const totalPaiementsPaye = recentPaiement?.reduce(
     (acc, item) => acc + Number(item.totalPaye || 0),
     0
   );
   // Calculer le total de Somme Impayé pour le 7 dernier jour
-  const totalPaiementsToPaye = totalPaiementsAmount - totalPaiementsPaye || 0;
+  const totalPaiementsToPaye = totalCommandeAmount - totalPaiementsPaye || 0;
 
   // Recent Depense
   const recentDepense = useMemo(
@@ -75,7 +74,7 @@ const RapportBySemaine = () => {
   // Calcule de CA , REVENUE, BENEFICE
   // const { totalCA, totalAchat, benefice } = useMemo(() => {
   const { totalAchat, benefice } = useMemo(() => {
-    if (!paiementsData?.paiements) {
+    if (!paiementsData) {
       return { totalAchat: 0, benefice: 0 };
     }
 
@@ -268,7 +267,7 @@ const RapportBySemaine = () => {
                 Total À Payé:{' '}
                 <span className='text-light ps-2'>
                   {' '}
-                  {formatPrice(totalPaiementsAmount)} F
+                  {formatPrice(totalCommandeAmount)} F
                 </span>
               </h5>
               <h5 className='my-1 text-light'>
