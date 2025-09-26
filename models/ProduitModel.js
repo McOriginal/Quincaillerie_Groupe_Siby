@@ -13,6 +13,12 @@ const produitSchema = new mongoose.Schema(
       required: true,
       trim: true,
     },
+    achatPrice: {
+      type: Number,
+      required: true,
+      default: 0,
+      trim: true,
+    },
     stock: {
       type: Number,
       required: true,
