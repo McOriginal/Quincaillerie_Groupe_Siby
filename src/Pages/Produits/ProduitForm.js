@@ -39,8 +39,8 @@ const ProduitForm = ({ produitToEdit, tog_form_modal }) => {
     },
     validationSchema: Yup.object({
       name: Yup.string().required('Ce champ est obligatoire'),
-      stock: Yup.number().positive('Le stock doit être un nombre positif'),
-      achatPrice: Yup.number().positive('Le stock doit être un nombre positif'),
+      stock: Yup.number(),
+      achatPrice: Yup.number(),
       price: Yup.number()
         .positive('Le Price de vente doit être un nombre positif')
         .required('Ce champ est obligatoire'),
