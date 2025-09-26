@@ -229,6 +229,11 @@ export default function ProduitListe() {
                       )}
                     </div>
                   )}
+                  <CardTitle
+                    style={{ position: 'absolute', top: '5%', left: '5%' }}
+                  >
+                    {formatPrice(prod?.achatPrice)} F
+                  </CardTitle>
                   <img
                     className='img-fluid'
                     style={{

@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React, { useCallback, useMemo, useState } from 'react';
 import { Card, Col, Row } from 'reactstrap';
 import { useAllPaiements } from '../../Api/queriesPaiement';
 import { useAllDepenses } from '../../Api/queriesDepense';
@@ -9,43 +9,48 @@ const RapportBySemaine = () => {
   const { data: commandes = [] } = useAllCommandes();
   const { data: paiementsData = [] } = useAllPaiements();
   const { data: depenseData = [] } = useAllDepenses();
+  const [startDate, setStartDate] = useState(null);
+  const [endDate, setEndDate] = useState(null);
 
-  // Calcule de la date pour le 7 dernier jours
-  const sevenDaysAgo = Date.now() - 7 * 24 * 60 * 60 * 1000;
-
+  // Helper pour filtrer entre deux dates
+  const isBetweenDates = useCallback(
+    (dateStr) => {
+      if (!startDate || !endDate) return true; // si pas encore choisi, on ne filtre pas
+      const date = new Date(dateStr).getTime();
+      const start = new Date(startDate).getTime();
+      const end = new Date(endDate);
+      end.setHours(23, 59, 59, 999);
+      return date >= start && date <= end.getTime();
+    },
+    [startDate, endDate]
+  );
   // Calcul de Nombre de Commande pour le 7 dernier jour
   const recentCommande = useMemo(
     () =>
       commandes?.commandesListe?.filter((item) => {
-        const t = new Date(item.createdAt).getTime();
-        return t >= sevenDaysAgo;
+        return isBetweenDates(item.commandeDate);
       }),
-    [commandes, sevenDaysAgo]
+    [commandes, isBetweenDates]
   );
   // Calcul de la somme total de Commande pour le 7 dernier jour
-  const totalCommandeNumber = recentCommande.length;
-  // const totalCommandeAmount = recentCommande.reduce(
-  //   (acc, item) => acc + Number(item.totalAmount || 0),
-  //   0
-  // );
+  const totalCommandeNumber = recentCommande?.length;
 
   // Recente Paiements Amount Paye
   const recentPaiement = useMemo(
     () =>
       paiementsData?.filter((item) => {
-        const paie = new Date(item.paiementDate).getTime();
-        return paie >= sevenDaysAgo;
+        return isBetweenDates(item.paiementDate);
       }),
-    [paiementsData, sevenDaysAgo]
+    [paiementsData, isBetweenDates]
   );
 
   // Calculer le total de Somme à Payé pour le 7 dernier jour
-  const totalPaiementsAmount = recentPaiement.reduce(
+  const totalPaiementsAmount = recentPaiement?.reduce(
     (acc, item) => acc + Number(item.totalAmount || 0),
     0
   );
   // Calculer le total de Somme Payé pour le 7 dernier jour
-  const totalPaiementsPaye = recentPaiement.reduce(
+  const totalPaiementsPaye = recentPaiement?.reduce(
     (acc, item) => acc + Number(item.totalPaye || 0),
     0
   );
@@ -56,33 +61,95 @@ const RapportBySemaine = () => {
   const recentDepense = useMemo(
     () =>
       depenseData?.filter((item) => {
-        const depen = new Date(item.dateOfDepense).getTime();
-        return depen >= sevenDaysAgo;
+        return isBetweenDates(item.dateOfDepense);
       }),
-    [depenseData, sevenDaysAgo]
+    [depenseData, isBetweenDates]
   );
 
   // Calculer la somme Dépensés pour le 7 dernier jour
-  const totalDepenses = recentDepense.reduce(
+  const totalDepenses = recentDepense?.reduce(
     (acc, item) => acc + Number(item.totalAmount || 0),
     0
   );
 
-  // Calculer Le revenu (Bénéfice) pour le mois sélectionné
-  const profit = useMemo(() => {
-    return totalPaiementsPaye - totalDepenses;
-  }, [totalPaiementsPaye, totalDepenses]);
+  // Calcule de CA , REVENUE, BENEFICE
+  // const { totalCA, totalAchat, benefice } = useMemo(() => {
+  const { totalAchat, benefice } = useMemo(() => {
+    if (!paiementsData?.paiements) {
+      return { totalAchat: 0, benefice: 0 };
+    }
+
+    // On filtre d'abord les paiements par date sélectionnée
+    const paiementsFiltres = paiementsData?.filter((item) => {
+      return isBetweenDates(item?.paiementDate);
+    });
+
+    // let totalCA = 0; // chiffre d’affaires
+    let totalAchat = 0; // coût d’achat
+
+    paiementsFiltres?.forEach((paiement) => {
+      paiement.commande?.items?.forEach((item) => {
+        const produit = item?.produit;
+        if (!produit) return;
+
+        // totalCA += (item?.customerPrice || 0) * (item?.quantity || 0);
+        totalAchat += (produit?.achatPrice || 0) * (item?.quantity || 0);
+      });
+    });
+
+    const total = totalPaiementsPaye - totalAchat;
+    const benefice = total - totalDepenses;
+
+    return { totalAchat, benefice };
+  }, [paiementsData, isBetweenDates, totalPaiementsPaye, totalDepenses]);
 
   return (
     <React.Fragment>
       <Card style={{ boxShadow: '0px 0px 10px rgba(123, 123, 123, 0.28)' }}>
         {/* Filtrage Bouton */}
-        <Row>
+        <Row className='mb-4'>
           <Col md={12}>
             <h4 className='text-center my-4' style={{ color: '#27548A' }}>
-              Rapports de 7 Dernier Jours
+              Veuillez Sélectionnez
             </h4>
           </Col>
+          <div className='mb-4 d-flex justify-content-around align-items-center'>
+            <Col
+              sm={4}
+              style={{
+                background: 'rgb(72, 60, 60)',
+                padding: '15px ',
+                borderRadius: '15px',
+              }}
+            >
+              <p className='text-center text-light'>Date de Début</p>
+              <input
+                type='date'
+                max={new Date().toISOString().split('T')[0]}
+                className='form-control border-1 border-dark'
+                value={startDate || ''}
+                onChange={(e) => setStartDate(e.target.value)}
+              />
+            </Col>
+            <Col
+              sm={4}
+              style={{
+                background: 'rgb(72, 60, 60)',
+                padding: '15px ',
+                borderRadius: '15px',
+              }}
+            >
+              <p className='text-center text-light'>Date de Fin</p>
+              <input
+                type='date'
+                min={startDate}
+                max={new Date().toISOString().split('T')[0]}
+                className='form-control border-1 border-dark'
+                value={endDate || ''}
+                onChange={(e) => setEndDate(e.target.value)}
+              />
+            </Col>
+          </div>
         </Row>
 
         {/* Résultats */}
@@ -98,11 +165,11 @@ const RapportBySemaine = () => {
               }}
             >
               {' '}
-              <h5 className='mb-1 text-white'>Bénéfice (Revenue)</h5>
-              {profit <= 0 ? (
-                <h4 className='text-danger'>{formatPrice(profit)} F</h4>
+              <h5 className='mb-1 text-white'>Bénéfice</h5>
+              {benefice <= 0 ? (
+                <h4 className='text-danger'>{formatPrice(benefice)} F</h4>
               ) : (
-                <h4 className='text-success'>{formatPrice(profit)} F</h4>
+                <h4 className='text-success'>{formatPrice(benefice)} F</h4>
               )}
             </Card>{' '}
           </Col>
@@ -120,7 +187,28 @@ const RapportBySemaine = () => {
                 {formatPrice(totalPaiementsPaye)} F
               </h4>
               <p className='text-white'>
-                Entrée (Paiements)
+                Revenue (Chiffre d'Affaire)
+                <i
+                  className='fas fa-level-down-alt ms-2 fs-4'
+                  style={{ color: '#B6F500' }}
+                ></i>
+              </p>
+            </Card>{' '}
+          </Col>
+          <Col sm={6} lg={4}>
+            <Card
+              style={{
+                background: 'linear-gradient(to top right , #090979, #222831)',
+                justifyContent: 'center',
+                alignItems: 'center',
+                height: '100px',
+              }}
+            >
+              <h4 className='mb-1' style={{ color: '#B6F500' }}>
+                {formatPrice(totalAchat)} F
+              </h4>
+              <p className='text-white'>
+                Achat sur Revenue
                 <i
                   className='fas fa-level-down-alt ms-2 fs-4'
                   style={{ color: '#B6F500' }}
@@ -144,7 +232,7 @@ const RapportBySemaine = () => {
                 {formatPrice(totalDepenses)} F
               </h4>
               <p className='text-white'>
-                Dépenses (Sortie)
+                Dépenses
                 <i
                   className='fas fa-level-up-alt ms-2 fs-4'
                   style={{ color: '#CB0404' }}
@@ -167,7 +255,7 @@ const RapportBySemaine = () => {
               <p className='text-white'>Commandes</p>
             </Card>{' '}
           </Col>
-          <Col md={8}>
+          <Col sm={6} lg={4}>
             <Card
               style={{
                 background: 'linear-gradient(to top right , #090979, #222831)',
@@ -177,14 +265,14 @@ const RapportBySemaine = () => {
               }}
             >
               <h5 className='my-1 text-light'>
-                À Payé:{' '}
+                Total À Payé:{' '}
                 <span className='text-light ps-2'>
                   {' '}
                   {formatPrice(totalPaiementsAmount)} F
                 </span>
               </h5>
               <h5 className='my-1 text-light'>
-                Payé:{' '}
+                Net Payé:{' '}
                 <span className='text-success ps-2'>
                   {' '}
                   {formatPrice(totalPaiementsPaye)} F

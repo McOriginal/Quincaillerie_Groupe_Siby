@@ -33,6 +33,13 @@ export const useAllCommandes = () =>
       api.get('/commandes/getAllCommandes').then((res) => res.data),
   });
 
+// Produits les plus vendu
+export const useGetTopProduitCommande = () =>
+  useQuery({
+    queryKey: ['commandes'],
+    queryFn: () => api.get('/commandes/getTopProduits').then((res) => res.data),
+  });
+
 // Obtenir une Commande
 export const useOneCommande = (id) =>
   useQuery({

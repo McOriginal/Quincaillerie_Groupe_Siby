@@ -13,7 +13,7 @@ const BarChartCommandePaiement = () => {
 
   const countCommandeByMonth = (item) => {
     const monthlyCounts = new Array(12).fill(0);
-    item.forEach((comm) => {
+    item?.forEach((comm) => {
       const date = new Date(comm.createdAt);
       if (!isNaN(date)) {
         const month = date.getMonth();
@@ -25,7 +25,7 @@ const BarChartCommandePaiement = () => {
 
   const sumTotalAmountToPayeByMonth = (items) => {
     const monthlySums = new Array(12).fill(0);
-    items.forEach((item) => {
+    items?.forEach((item) => {
       const date = new Date(item.createdAt);
       if (!isNaN(date)) {
         const month = date.getMonth();
@@ -36,7 +36,7 @@ const BarChartCommandePaiement = () => {
   };
   const sumTotalAmountPayeByMonth = (items) => {
     const monthlySums = new Array(12).fill(0);
-    items.forEach((item) => {
+    items?.forEach((item) => {
       const date = new Date(item.createdAt);
       if (!isNaN(date)) {
         const month = date.getMonth();
@@ -47,7 +47,7 @@ const BarChartCommandePaiement = () => {
   };
   const sumTotalAmountNotPayeByMonth = (items) => {
     const monthlySums = new Array(12).fill(0);
-    items.forEach((item) => {
+    items?.forEach((item) => {
       const date = new Date(item.createdAt);
       if (!isNaN(date)) {
         const month = date.getMonth();
@@ -131,7 +131,7 @@ const BarChartCommandePaiement = () => {
       },
       title: {
         display: true,
-        text: 'Statistiques des Patients, Traitements et Ordonnances',
+        text: 'Statistiques de Boutique',
         color: '#102E50',
       },
     },
