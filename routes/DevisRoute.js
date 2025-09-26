@@ -15,7 +15,7 @@ router.post(
 router.get('/getAllDevis', devisController.getAllDevis);
 
 //  Obtenir une Deviss
-router.get('/getOneDevis/:id', devisController.getOneDevis);
+router.get('/devis_details/:id', devisController.getOneDevis);
 
 router.put('/updateDevis/:id', devisController.updateDevis);
 
