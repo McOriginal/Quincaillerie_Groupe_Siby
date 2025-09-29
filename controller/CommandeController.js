@@ -107,18 +107,6 @@ exports.updateCommande = async (req, res) => {
 
     await existingCommande.save({ session });
 
-    const paiement = await Paiement.findOne({ commande: commandeId }),
-      paiementId = paiement ? paiement._id : null;
-    if (paiementId) {
-      const paiementRecord = await Paiement.findById(paiementId).session(
-        session
-      );
-      if (paiementRecord) {
-        paiementRecord.totalAmount = totalAmount;
-        await paiementRecord.save({ session });
-      }
-    }
-
     await session.commitTransaction();
     session.endSession();
 

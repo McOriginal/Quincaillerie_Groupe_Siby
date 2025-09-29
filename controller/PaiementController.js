@@ -47,6 +47,15 @@ exports.updatePaiement = async (req, res) => {
       return res.status(404).json({ message: 'Cette Commande est déjà payé' });
     }
 
+    // if (existingPaiement.reduction !== req.body.reduction) {
+    // if (req.body.reduction) {
+    //   const commande = await Commande.findById(commandeID);
+
+    //   const result = (await commande.totalAmount) - req.body.reduction;
+    //   commande.totalAmount = result;
+    //   commande.save();
+    // }
+
     const updated = await Paiement.findByIdAndUpdate(req.params.id, req.body, {
       new: true,
       runValidators: true,
