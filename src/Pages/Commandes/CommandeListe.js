@@ -427,36 +427,35 @@ export default function CommandeListe() {
                                             <i className=' bx bx-show-alt text-white'></i>
                                           </button>
                                         </div>
-                                        {connectedUserBoutique !== null &&
-                                          Number(comm.user?.boutique) ===
-                                            Number(connectedUserBoutique) && (
-                                            <div className='d-flex gap-2'>
-                                              <div className='edit'>
-                                                <button
-                                                  className='btn btn-sm btn-success edit-item-btn'
-                                                  onClick={() => {
-                                                    navigate(
-                                                      `/updateCommande/${comm?._id}`
-                                                    );
-                                                  }}
-                                                >
-                                                  <i className='ri-pencil-fill text-white'></i>
-                                                </button>
-                                              </div>
-                                              <div className='remove'>
-                                                <button
-                                                  className='btn btn-sm btn-danger remove-item-btn'
-                                                  data-bs-toggle='modal'
-                                                  data-bs-target='#deleteRecordModal'
-                                                  onClick={() => {
-                                                    deleteCommande(comm);
-                                                  }}
-                                                >
-                                                  <i className='ri-delete-bin-fill text-white'></i>
-                                                </button>
-                                              </div>
+                                        {Number(comm.user?.boutique) ===
+                                          Number(connectedUserBoutique) && (
+                                          <div className='d-flex gap-2'>
+                                            <div className='edit'>
+                                              <button
+                                                className='btn btn-sm btn-success edit-item-btn'
+                                                onClick={() => {
+                                                  navigate(
+                                                    `/updateCommande/${comm?._id}`
+                                                  );
+                                                }}
+                                              >
+                                                <i className='ri-pencil-fill text-white'></i>
+                                              </button>
                                             </div>
-                                          )}
+                                            <div className='remove'>
+                                              <button
+                                                className='btn btn-sm btn-danger remove-item-btn'
+                                                data-bs-toggle='modal'
+                                                data-bs-target='#deleteRecordModal'
+                                                onClick={() => {
+                                                  deleteCommande(comm);
+                                                }}
+                                              >
+                                                <i className='ri-delete-bin-fill text-white'></i>
+                                              </button>
+                                            </div>
+                                          </div>
+                                        )}
                                       </div>
                                     )}
                                   </td>

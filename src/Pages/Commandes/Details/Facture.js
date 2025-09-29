@@ -28,6 +28,7 @@ import { useRef } from 'react';
 import { companyName } from '../../CompanyInfo/CompanyInfo';
 import FactureHeader from './FactureHeader';
 import LogoFiligran from './LogoFiligran';
+import BackButton from '../../components/BackButton';
 
 export default function Facture() {
   const { id } = useParams();
@@ -64,6 +65,7 @@ export default function Facture() {
 
           <Col className='col-sm-auto mb-3'>
             <div className='d-flex gap-4  justify-content-center align-items-center'>
+              <BackButton />
               <Button
                 color='info'
                 className='add-btn'
